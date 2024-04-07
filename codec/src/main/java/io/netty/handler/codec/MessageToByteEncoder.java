@@ -99,18 +99,18 @@ public abstract class MessageToByteEncoder<I> extends ChannelOutboundHandlerAdap
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         ByteBuf buf = null;
         try {
-            if (acceptOutboundMessage(msg)) {
+            if (acceptOutboundMessage(msg)) { //解码器类型是否匹配
                 @SuppressWarnings("unchecked")
                 I cast = (I) msg;
-                buf = allocateBuffer(ctx, cast, preferDirect);
+                buf = allocateBuffer(ctx, cast, preferDirect); //分配ByteBuf资源
                 try {
-                    encode(ctx, cast, buf);
+                    encode(ctx, cast, buf); //执行encode完成数据解码解码
                 } finally {
                     ReferenceCountUtil.release(cast);
                 }
 
                 if (buf.isReadable()) {
-                    ctx.write(buf, promise);
+                    ctx.write(buf, promise);  //向后传递写事件
                 } else {
                     buf.release();
                     ctx.write(Unpooled.EMPTY_BUFFER, promise);
